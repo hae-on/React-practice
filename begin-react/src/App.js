@@ -2,6 +2,7 @@ import React from "react";
 import Hello from "./Hello";
 import Wrapper from "./Wrapper";
 import "./App.css";
+import Counter from "./Counter";
 
 function App() {
   const name = "react";
@@ -21,6 +22,8 @@ function App() {
       <div style={style}>{name}</div>
       {/* 주석 입력해보기 */}
       <div className="gray-box"></div>
+
+      <Counter />
     </>
   );
 }
