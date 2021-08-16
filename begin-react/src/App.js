@@ -1,9 +1,4 @@
-import React, { useRef, useState, useMemo, useCallback } from "react";
-import Hello from "./Hello";
-import Wrapper from "./Wrapper";
-import "./App.css";
-import Counter from "./Counter";
-import InputSample from "./InputSample";
+import React, { useRef, useReducer, useMemo, useCallback } from "react";
 import UserList from "./UserList";
 import CreateUser from "./CreateUser";
 
@@ -12,30 +7,12 @@ function countActivesUsers(users) {
   return users.filter((user) => user.active).length;
 }
 
-function App() {
-  const name = "react";
-  const style = {
-    backgroundColor: "black",
-    color: "aqua",
-    fontSize: 24,
-    padding: "1rem",
-  };
-
-  const [inputs, setInputs] = useState({
+const initialState = {
+  inputs: {
     username: "",
     email: "",
-  });
-
-  const { username, email } = inputs;
-  const onChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setInputs((inputs) => ({
-      ...inputs,
-      [name]: value,
-    }));
-  }, []);
-
-  const [users, setUsers] = useState([
+  },
+  users: [
     {
       id: 1,
       username: "velopert",
@@ -54,62 +31,94 @@ function App() {
       email: "liz@example.com",
       active: false,
     },
-  ]);
+  ],
+};
 
+function reducer(state, action) {
+  switch (action.type) {
+    case "CHANGE_INPUT":
+      return {
+        ...state,
+        inputs: {
+          ...state.inputs,
+          [action.name]: action.value,
+        },
+      };
+    case "CREATE_USER":
+      return {
+        inputs: initialState.inputs,
+        users: state.users.countActivesUsers(action.user),
+      };
+    case "TOGGLE_USER":
+      return {
+        ...state,
+        users: state.users.map((user) =>
+          user.id === action.id ? { ...user, action: !user.action } : user
+        ),
+      };
+    case "REMOVE_USER":
+      return {
+        ...state,
+        users: state.users.filter((user) => user.id !== action.id),
+      };
+    default:
+      return state;
+  }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
   const nextId = useRef(4);
-  const onCreate = useCallback(() => {
-    const user = {
-      id: nextId.current,
-      username,
-      email,
-    };
-    setUsers((users) => users.concat(user));
 
-    setInputs({
-      username: "",
-      email: "",
+  const { users } = state;
+  const { username, email } = state.inputs;
+
+  const onChange = useCallback((e) => {
+    const { name, value } = e.target;
+    dispatch({
+      type: "CHANGE_INPUT",
+      name,
+      value,
+    });
+  }, []);
+
+  const onCreate = useCallback(() => {
+    dispatch({
+      type: "CREATE_USER",
+      user: {
+        id: nextId.current,
+        username,
+        email,
+      },
     });
     nextId.current += 1;
   }, [username, email]);
 
-  const onRemove = useCallback((id) => {
-    setUsers((users) => users.filter((user) => user.id !== id));
+  const onToggle = useCallback((id) => {
+    dispatch({
+      type: "TOGGLE_USER",
+      id,
+    });
   }, []);
 
-  const onToggle = useCallback((id) => {
-    setUsers((users) =>
-      users.map((user) =>
-        user.id === id ? { ...user, active: !user.active } : user
-      )
-    );
+  const onRemove = useCallback((id) => {
+    dispatch({
+      type: "REMOVE_USER",
+      id,
+    });
   }, []);
 
   const count = useMemo(() => countActivesUsers(users), [users]);
-
   return (
     <>
-      <Wrapper>
-        <Hello name="react" color="red" isSpecial />
-        <Hello color="pink" />
-      </Wrapper>
-
-      <div style={style}>{name}</div>
-      {/* 주석 입력해보기 */}
-      <div className="gray-box"></div>
-
-      <Counter />
-
-      <InputSample />
-
       <CreateUser
         username={username}
         email={email}
         onChange={onChange}
         onCreate={onCreate}
       />
-      <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
-
-      <div>활성사용자 수: {count}</div>
+      <UserList users={users} onToggle={onToggle} onRemove={onRemove} />
+      <div>활성사용자 수 : {count}</div>
     </>
   );
 }
