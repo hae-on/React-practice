@@ -2,6 +2,7 @@ import React, { useReducer, useMemo } from "react";
 import UserList from "./UserList";
 import CreateUser from "./CreateUser";
 import produce from "immer";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 function countActivesUsers(users) {
   console.log("활성 사용자 수를 세는중...");
@@ -61,11 +62,19 @@ function App() {
 
   const count = useMemo(() => countActivesUsers(users), [users]);
   return (
-    <UserDispatch.Provider value={dispatch}>
-      <CreateUser />
-      <UserList users={users} />
-      <div>활성사용자 수 : {count}</div>
-    </UserDispatch.Provider>
+    <BrowserRouter>
+      <UserDispatch.Provider value={dispatch}>
+        <Switch>
+          <Route exact path="/">
+            <CreateUser />
+          </Route>
+          <Route path="/userList">
+            <UserList users={users} />
+            <div>활성사용자 수 : {count}</div>
+          </Route>
+        </Switch>
+      </UserDispatch.Provider>
+    </BrowserRouter>
   );
 }
 
