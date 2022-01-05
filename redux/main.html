@@ -35,7 +35,13 @@
             liTags +
             `
             <li>
-                <a href="${state.contents[i].id}">${state.contents[i].title}</a>
+                <a onclick="
+                    event.preventDefault();
+                   let action = {type: 'SELECT', id: ${state.contents[i].id}}
+                   store.dispatch(action);
+                " href="${state.contents[i].id}">
+                    ${state.contents[i].title}
+                </a>
             </li>
             `;
           i = i + 1;
@@ -67,13 +73,19 @@
       function reducer(state, action) {
         if (state === undefined) {
           return {
+            selected_id: null,
             contents: [
               { id: 1, title: "HTML", desc: "HTML is..." },
               { id: 2, title: "CSS", desc: "CSS is..." },
             ],
           };
         }
-        //   return
+        let newState = {};
+        if (action.type === "SELECT") {
+          newState = Object.assign({}, state, { selected_id: action.id });
+        }
+        console.log(state, action, newState);
+        return newState;
       }
       let store = Redux.createStore(reducer);
       subject();
