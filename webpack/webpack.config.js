@@ -7,4 +7,12 @@ module.exports = {
     path: path.resolve(__dirname, "publlic"),
     filename: "index_bundle.js",
   },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
+    ],
+  },
 };
