@@ -9,14 +9,16 @@ const RelatedVideos = ({ id }) => {
     isLoading,
     error,
     data: videos,
-  } = useQuery(['related', id], () => youtube.relatedVideos(id));
+  } = useQuery(['related', id], () => youtube.relatedVideos(id), {
+    staleTime: 1000 * 60 * 5,
+  });
 
   return (
     <>
       {isLoading && <p>Loading...</p>}
       {error && <p>Something is wrong 🥲</p>}
       {videos && (
-        <ul className=''>
+        <ul>
           {videos.map((video) => (
             <VideoCard key={video.id} video={video} type='list' />
           ))}
