@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import './App.css';
-import { useClickOutside } from './hooks/useClickOutside';
+import Modal from './components/Modal';
 
 function App() {
-  const ref = useClickOutside(() => {
-    alert('clicked outside');
-  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div ref={ref} style={{ padding: '50px', background: 'lightgray' }}>
-      Click outside this box
-    </div>
+    <>
+      <button onClick={() => setIsModalOpen(true)}>Open Modal</button>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h1>Modal Content</h1>
+        <p>This is the content inside the modal</p>
+      </Modal>
+    </>
   );
 }
 
